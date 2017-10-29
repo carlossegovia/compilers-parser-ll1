@@ -41,7 +41,8 @@ class Asp:
                 if token == pop:
                     pila.pop()
                     posicion += 1
-                    print("Top de la Pila igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
+                    print(
+                        "Top de la Pila igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
                 elif pop == "@":
                     pila.pop()
                 else:
@@ -69,31 +70,14 @@ class Asp:
             for regla in self.FINAL_RULES:
                 print(regla)
 
-    # def recuperacion(self, tokens, position, stack):
-    #     print("***** RECUPERACION:")
-    #     print("Saltando tokens:")
-    #     while tokens[position] != ">" and tokens[position] != "<" and position < len(tokens) -1:
-    #         position += 1
-    #         print("\t" + tokens[position])
-    #     if tokens[position] != "<":
-    #         position += 1
-    #
-    #     print("Sacando de la pila:")
-    #     topOfStack = stack[len(stack) - 1]
-    #     while topOfStack != 'L' and len(stack) > 1:
-    #         print("\t'" + stack.pop())
-    #         topOfStack = stack[len(stack) - 1]
-    #
-    #     return position, stack
-
     def recuperacion(self, tokens, position, stack):
         print("***** RECUPERACION:")
-        if (self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] == '.'):
+        if (self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] == '.'):
             print "Omitir: " + tokens[position]
-            position +=1
-        elif (self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] == 'sinc'):
+            position += 1
+        elif (self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] == 'sinc'):
             print("Sacar de la pila: \t'" + stack.pop())
-        elif ((self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] != tokens[position])):
+        elif ((self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] != tokens[position])):
             print("Sacar de la pila: \t'" + stack.pop())
         return position, stack
 
@@ -103,10 +87,15 @@ class Asp:
             line = line + " " + rule
         return line
 
+
 entrada = raw_input("Ingrese la cadena de entrada, separando los tokens por espacio: ")
 arrayEntrada = entrada.split(" ")
 a = Asp()
-a.parsearTabla()
-a.analizarTokens(arrayEntrada)
+try:
+    a.parsearTabla()
+except IndexError as ie:
+    print "No se pueden tener una tabla multivalor para un LL(1)"
+else:
+    a.analizarTokens(arrayEntrada)
 # a.analyzeTokens(['id', '+', 'id', '*', 'id', '$'])
 # a.analyzeTokens([')', 'id', '*', '+', 'id', '$'])
