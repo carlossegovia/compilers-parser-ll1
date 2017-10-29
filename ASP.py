@@ -1,105 +1,100 @@
 class Asp:
-    # grammar rules in a form of string:
-    #   - @ denotes epsilon
-    #   - . denotes empty item = error
+    # Reglas de la gramatica:
+    #   - @ denota epsilon
+    #   - . denotes item vacio = error
     def __init__(self):
         pass
 
-    f = open('input', 'r')
-    GRAMMAR = f.read()
+    f = open('table_sinc', 'r')
+    TABLA = f.read()
     FINAL_RULES = []
 
-    # parse table structure:
-    #      REQUIRED IMPLIED FIXED CDATA NMTOKEN IDREF ATTLIST ELEMENT EMPTY ANY PCDATA WORD , | \" ( ) < > ? * + $
-    #   A
-    #   B
-    #   C
-    #   D
-    #   E
-    #   F
-    #   G
-    #
-    #   parse table is represented as a hash table of parse table row indexes
-    #   (non terminals + terminals) where each of the hash values is another
-    #   hash table with the column indexes as keys and set of terminas and
-    #   nonterminals delimited by space for the given rule
-    #
-    PARSE_TABLE = {}
-    ERROR_COUNT = 0
-    START = ""
+    TABLA_PARSEADA = {}
+    ERRORES_CONT = 0
+    INICIO = ""
 
-    def initializeParseTable(self):
-        rows = filter(None, self.GRAMMAR.split('\n'))
-        columns_indexes = filter(None, rows[0].split(' '))
-        self.START = rows[1].split(' ')[0]
-        for row in rows[1:]:
-            columns = row[0:].split(' ')
-            self.PARSE_TABLE[columns[0]] = {}
-            for idx, column in enumerate(columns[1:]):
-                # print(columns[0], columns_indexes[idx], column)
-                self.PARSE_TABLE[columns[0]][columns_indexes[idx]] = column
+    def parsearTabla(self):
+        filas = filter(None, self.TABLA.split('\n'))
+        columnas_indexadas = filter(None, filas[0].split(' '))
+        self.INICIO = filas[1].split(' ')[0]
+        for fila in filas[1:]:
+            columnas = fila[0:].split(' ')
+            self.TABLA_PARSEADA[columnas[0]] = {}
+            for idx, column in enumerate(columnas[1:]):
+                self.TABLA_PARSEADA[columnas[0]][columnas_indexadas[idx]] = column
 
-    def analyzeTokens(self, tokens):
-        stack = []
-        stack.append('$')
-        stack.append(self.START)
-        position = 0
-        token = tokens[position]
-        pop = stack[len(stack) - 1]
+    def analizarTokens(self, tokens):
+        pila = []
+        pila.append('$')
+        pila.append(self.INICIO)
+        posicion = 0
+        token = tokens[posicion]
+        pop = pila[len(pila) - 1]
         while pop is not "$":
-            pop = stack[len(stack) - 1]
+            pop = pila[len(pila) - 1]
             print "\n--------------------"
-            print "Stack: " + str(stack)
-            print "Top of Stack: " + pop
-            token = tokens[position]
+            print "Pila: " + str(pila)
+            print "Top de la Pila: " + pop
+            token = tokens[posicion]
 
-            if pop not in self.PARSE_TABLE.keys() or pop is "$":
+            if pop not in self.TABLA_PARSEADA.keys() or pop is "$":
                 if token == pop:
-                    stack.pop()
-                    position += 1
-                    print("Top Of Stack equals Token, so we pop Top of Stack and move to another token.")
+                    pila.pop()
+                    posicion += 1
+                    print("Top de la Pila igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
                 elif pop == "@":
-                    stack.pop()
+                    pila.pop()
                 else:
-                    print("***** ERROR: No match in Parse Table. *******")
-                    self.ERROR_COUNT += 1
-                    position, stack = self.recovery(tokens, position, stack)
+                    print("***** ERROR: Ningun match en la Tabla Parseada. *******")
+                    self.ERRORES_CONT += 1
+                    posicion, pila = self.recuperacion(tokens, posicion, pila)
             else:
-                if self.PARSE_TABLE[pop][token] != ".":
-                    rules = self.PARSE_TABLE[pop][token].split(';')
-                    stack.pop()
-                    rule_str = pop + " -> " + self.printRules(rules)
-                    self.FINAL_RULES.append(rule_str)
-                    print("Match found. Applying rules: " + rule_str)
-                    for rule in reversed(rules):
-                        stack.append(rule)
+                if self.TABLA_PARSEADA[pop][token] != "." and self.TABLA_PARSEADA[pop][token] != 'sinc':
+                    reglas = self.TABLA_PARSEADA[pop][token].split(';')
+                    pila.pop()
+                    regla_str = pop + " -> " + self.printRules(reglas)
+                    self.FINAL_RULES.append(regla_str)
+                    print("Match encontrado. Aplicando reglas: " + regla_str)
+                    for regla in reversed(reglas):
+                        pila.append(regla)
                 else:
-                    print("***** ERROR: No match in Parse Table. *******")
-                    self.ERROR_COUNT += 1
-                    position, stack = self.recovery(tokens, position, stack)
+                    print("***** ERROR: Ningun match en la Tabla Parseada. *******")
+                    self.ERRORES_CONT += 1
+                    posicion, pila = self.recuperacion(tokens, posicion, pila)
 
-        print("\nDONE")
-        print("\t" + str(self.ERROR_COUNT) + " errors found.")
-        if self.ERROR_COUNT == 0:
-            print("Las acciones finales son:")
-            for rule in self.FINAL_RULES:
-                print(rule)
+        print("\nFINALIZADO:")
+        print("\t" + str(self.ERRORES_CONT) + " errores encontrados.")
+        if self.ERRORES_CONT == 0:
+            print("\nLas acciones finales son:")
+            for regla in self.FINAL_RULES:
+                print(regla)
 
-    def recovery(self, tokens, position, stack):
-        print("***** RECOVERY:")
-        print("Skipping tokens:")
-        while tokens[position] != ">" and tokens[position] != "<":
-            position += 1
-            print("\t" + tokens[position])
-        if tokens[position] != "<":
-            position += 1
+    # def recuperacion(self, tokens, position, stack):
+    #     print("***** RECUPERACION:")
+    #     print("Saltando tokens:")
+    #     while tokens[position] != ">" and tokens[position] != "<" and position < len(tokens) -1:
+    #         position += 1
+    #         print("\t" + tokens[position])
+    #     if tokens[position] != "<":
+    #         position += 1
+    #
+    #     print("Sacando de la pila:")
+    #     topOfStack = stack[len(stack) - 1]
+    #     while topOfStack != 'L' and len(stack) > 1:
+    #         print("\t'" + stack.pop())
+    #         topOfStack = stack[len(stack) - 1]
+    #
+    #     return position, stack
 
-        print("Poping out of stack:")
-        topOfStack = stack[len(stack) - 1]
-        while topOfStack != 'L':
-            print("\t'" + stack.pop())
-            topOfStack = stack[len(stack) - 1]
-
+    def recuperacion(self, tokens, position, stack):
+        print("***** RECUPERACION:")
+        if (self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] == '.'):
+            print "Omitir: " + tokens[position]
+            position +=1
+        elif (self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] == 'sinc'):
+            print("Sacar de la pila: \t'" + stack.pop())
+        elif ((self.TABLA_PARSEADA[stack[len(stack)-1]][tokens[position]] != tokens[position])):
+            print("Sacar de la pila: \t'" + stack.pop())
         return position, stack
 
     def printRules(self, rules):
@@ -108,7 +103,10 @@ class Asp:
             line = line + " " + rule
         return line
 
-
+entrada = raw_input("Ingrese la cadena de entrada, separando los tokens por espacio: ")
+arrayEntrada = entrada.split(" ")
 a = Asp()
-a.initializeParseTable()
-a.analyzeTokens(['id', '+', 'id', '*', 'id', '$'])
+a.parsearTabla()
+a.analizarTokens(arrayEntrada)
+# a.analyzeTokens(['id', '+', 'id', '*', 'id', '$'])
+# a.analyzeTokens([')', 'id', '*', '+', 'id', '$'])
