@@ -1,4 +1,4 @@
-#encoding: utf-8
+# encoding: utf-8
 class Asp:
     # Reglas de la gramatica:
     #   - @ denota epsilon
@@ -44,7 +44,6 @@ class Asp:
                     posicion += 1
                     print(
                         "Top de la Pila igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
-		    self.FINAL_RULES.append("Match "+token)
                 elif pop == "@":
                     pila.pop()
                 else:
@@ -66,12 +65,12 @@ class Asp:
                     posicion, pila = self.recuperacion(tokens, posicion, pila)
 
         print("\nFINALIZADO:")
-	print("\t" + str(self.ERRORES_CONT) + " errores encontrados.")
+        print("\t" + str(self.ERRORES_CONT) + " errores encontrados.")
         if self.ERRORES_CONT == 0:
             print("\nLa cadena si pertenece a la gramática. Las acciones finales son:")
             for regla in self.FINAL_RULES:
                 print(regla)
-	else:
+        else:
             print("\tLa cadena no pertenece a la gramática.")
 
     def recuperacion(self, tokens, position, stack):
