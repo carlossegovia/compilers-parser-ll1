@@ -72,13 +72,18 @@ class Asp:
 
     def recuperacion(self, tokens, position, stack):
         print("***** RECUPERACION:")
-        if (self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] == '.'):
+        if (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == '.' or (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc' and stack[-1] == self.INICIO)):
             print "Omitir: " + tokens[position]
+            self.tokensEsperados(stack[-1])
             position += 1
-        elif (self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] == 'sinc'):
-            print("Sacar de la pila: \t'" + stack.pop())
-        elif ((self.TABLA_PARSEADA[stack[len(stack) - 1]][tokens[position]] != tokens[position])):
-            print("Sacar de la pila: \t'" + stack.pop())
+        elif (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc'):
+            print("Sacar de la pila: \t'" + stack[-1])
+            self.tokensEsperados(stack[-1])
+            stack.pop()
+        elif ((self.TABLA_PARSEADA[stack[-1]][tokens[position]] != tokens[position])):
+            print("Sacar de la pila: \t'" + stack[-1])
+            self.tokensEsperados(stack[-1])
+            stack.pop()
         return position, stack
 
     def printRules(self, rules):
@@ -86,6 +91,12 @@ class Asp:
         for rule in rules:
             line = line + " " + rule
         return line
+
+    def tokensEsperados(self, item):
+        print "Se espera uno de estos tokens: "
+        for key, value in self.TABLA_PARSEADA[item].iteritems():
+            if (value != 'sinc' and value != '.'):
+                print "\t\t" + key
 
 
 entrada = raw_input("Ingrese la cadena de entrada, separando los tokens por espacio: ")
