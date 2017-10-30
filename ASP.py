@@ -29,9 +29,9 @@ class Asp:
         pila.append(self.INICIO)
         posicion = 0
         token = tokens[posicion]
-        pop = pila[len(pila) - 1]
+        pop = pila[-1]
         while pop is not "$":
-            pop = pila[len(pila) - 1]
+            pop = pila[-1]
             print "\n--------------------"
             print "Pila: " + str(pila)
             print "Top de la Pila: " + pop
@@ -72,16 +72,19 @@ class Asp:
 
     def recuperacion(self, tokens, position, stack):
         print("***** RECUPERACION:")
-        if (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == '.' or (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc' and stack[-1] == self.INICIO)):
+        if (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == '.' or (
+                            self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc' and stack[-1] == self.INICIO and
+                        tokens[
+                            position] != "$")):
             print "Omitir: " + tokens[position]
             self.tokensEsperados(stack[-1])
             position += 1
         elif (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc'):
-            print("Sacar de la pila: \t'" + stack[-1])
+            print("Sacar de la pila: \t" + stack[-1])
             self.tokensEsperados(stack[-1])
             stack.pop()
         elif ((self.TABLA_PARSEADA[stack[-1]][tokens[position]] != tokens[position])):
-            print("Sacar de la pila: \t'" + stack[-1])
+            print("Sacar de la pila: \t" + stack[-1])
             self.tokensEsperados(stack[-1])
             stack.pop()
         return position, stack
