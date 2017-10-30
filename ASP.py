@@ -122,3 +122,8 @@ else:
     a.analizarTokens(arrayEntrada)
 # a.analyzeTokens(['id', '+', 'id', '*', 'id', '$'])
 # a.analyzeTokens([')', 'id', '*', '+', 'id', '$'])
+
+#Tabla_sinc_2
+# cgah$
+# caab$
+# feab$
