@@ -43,13 +43,14 @@ class Asp:
                     pila.pop()
                     posicion += 1
                     print(
-                        "Top de la Pila igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
+                        "Top de la Pila es igual al Token, asi que sacamos la parte superior de la pila y pasamos a otro Token.")
+                    if (token != "$"): self.FINAL_RULES.append("Match: "+ token )
                 elif pop == "@":
                     pila.pop()
                 else:
-                    print("***** ERROR: Ningun match en la Tabla Parseada. *******")
+                    print("***** ERROR: El Top de la pila es un terminal y no coincide con el token actual. *******")
                     self.ERRORES_CONT += 1
-                    posicion, pila = self.recuperacion(tokens, posicion, pila)
+                    posicion, pila = self.recuperacion(tokens, posicion, pila, True)
             else:
                 if self.TABLA_PARSEADA[pop][token] != "." and self.TABLA_PARSEADA[pop][token] != 'sinc':
                     reglas = self.TABLA_PARSEADA[pop][token].split(';')
@@ -60,9 +61,9 @@ class Asp:
                     for regla in reversed(reglas):
                         pila.append(regla)
                 else:
-                    print("***** ERROR: Ningun match en la Tabla Parseada. *******")
+                    print("***** ERROR: Ningun match en la Tabla. *******")
                     self.ERRORES_CONT += 1
-                    posicion, pila = self.recuperacion(tokens, posicion, pila)
+                    posicion, pila = self.recuperacion(tokens, posicion, pila, False)
 
         print("\nFINALIZADO:")
         print("\t" + str(self.ERRORES_CONT) + " errores encontrados.")
@@ -73,23 +74,28 @@ class Asp:
         else:
             print("\tLa cadena no pertenece a la gramática.")
 
-    def recuperacion(self, tokens, position, stack):
+    def recuperacion(self, tokens, position, stack, isTerminal):
         print("***** RECUPERACION:")
-        if (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == '.' or (
-                            self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc' and stack[-1] == self.INICIO and
-                        tokens[
-                            position] != "$")):
-            print "Omitir: " + tokens[position]
-            self.tokensEsperados(stack[-1])
-            position += 1
-        elif (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc'):
+        if isTerminal:
             print("Sacar de la pila: \t" + stack[-1])
-            self.tokensEsperados(stack[-1])
             stack.pop()
-        elif ((self.TABLA_PARSEADA[stack[-1]][tokens[position]] != tokens[position])):
-            print("Sacar de la pila: \t" + stack[-1])
-            self.tokensEsperados(stack[-1])
-            stack.pop()
+        else:
+            if (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == '.' or (
+                                self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc' and stack[
+                            -1] == self.INICIO and
+                            tokens[
+                                position] != "$")):
+                print "Omitir: " + tokens[position]
+                self.tokensEsperados(stack[-1])
+                position += 1
+            elif (self.TABLA_PARSEADA[stack[-1]][tokens[position]] == 'sinc'):
+                print("Sacar de la pila: \t" + stack[-1])
+                self.tokensEsperados(stack[-1])
+                stack.pop()
+            elif ((self.TABLA_PARSEADA[stack[-1]][tokens[position]] != tokens[position])):
+                print("Sacar de la pila: \t" + stack[-1])
+                self.tokensEsperados(stack[-1])
+                stack.pop()
         return position, stack
 
     def printRules(self, rules):
